@@ -12,6 +12,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,12 +42,51 @@ public class GenerateContent
     public static void main(String[] argv)
             throws ParserConfigurationException,
                    TransformerConfigurationException,
-                   TransformerException
+                   TransformerException,
+                   ParseException
     {
-        int[] width = { 10, 10, 10 }; // TODO parameterize
+        int[] width = new int[0];
 
-        boolean format = true; // TODO parameterize
+        boolean format;
 
+        // Analyze the command line
+        DefaultParser parser = new DefaultParser();
+        Options options = new Options();
+        options.addOption("h", "help", false, "Hellllp meeeee!");
+        options.addOption("f", "format", false, "try to make output readable (otherwise make it compact)");
+        Option option = Option.builder("w")
+                .longOpt("width")
+                .desc("number of containers to create at each depth")
+                .hasArgs()
+                .build();
+        options.addOption(option);
+        CommandLine cmd = parser.parse(options, argv);
+
+        // Help confused users
+        if (cmd.hasOption('h'))
+        {
+            new HelpFormatter().printHelp(
+                    "java " + GenerateContent.class.getCanonicalName(),
+                    options);
+            System.exit(0);
+        }
+
+        // Collect options and arguments
+        format = cmd.hasOption('f');
+        if (cmd.hasOption('w'))
+        {
+            String[] widths = cmd.getOptionValues('w');
+            width = new int[widths.length];
+            for (int atDepth = 0; atDepth < widths.length; atDepth++)
+                width[atDepth] = Integer.parseInt(widths[atDepth]);
+        }
+        else
+        {
+            System.err.println("The --width \"option\" is required");
+            System.exit(1);
+        }
+
+        // Begin work
         final int depth = 0;
 
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
