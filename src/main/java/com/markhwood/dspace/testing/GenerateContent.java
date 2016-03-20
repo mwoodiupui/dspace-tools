@@ -76,6 +76,11 @@ public class GenerateContent
         if (cmd.hasOption('w'))
         {
             String[] widths = cmd.getOptionValues('w');
+            if (widths.length < 2)
+            {
+                System.err.println("The --width option must have at least two values");
+                System.exit(1);
+            }
             width = new int[widths.length];
             for (int atDepth = 0; atDepth < widths.length; atDepth++)
                 width[atDepth] = Integer.parseInt(widths[atDepth]);
@@ -107,7 +112,7 @@ public class GenerateContent
                 community.appendChild(element);
             }
             root.appendChild(community);
-            // TODO Recursively fill this Community with subcommunities and collections
+            // Recursively fill this Community with subcommunities and collections
             if (depth < width.length-2)
                 addCommunities(depth+1, width, community);
             else
@@ -124,7 +129,7 @@ public class GenerateContent
     private static void addCommunities(int depth, int width[], Element parent)
     {
         Element community;
-        for (int nCommunity = 0; nCommunity < width[0]; nCommunity++)
+        for (int nCommunity = 0; nCommunity < width[depth]; nCommunity++)
         {
             // Create a Community
             community = (Element) document.createElement("community");
@@ -137,7 +142,7 @@ public class GenerateContent
                 community.appendChild(element);
             }
             parent.appendChild(community);
-            // TODO Recursively fill this Community with subcommunities and collections
+            // Recursively fill this Community with subcommunities and collections
             if (depth < width.length-2)
                 addCommunities(depth+1, width, community);
             else
@@ -148,7 +153,7 @@ public class GenerateContent
     private static void addCollections(int depth, int width[], Element parent)
     {
         Element collection;
-        for (int nCollection = 0; nCollection < width[0]; nCollection++)
+        for (int nCollection = 0; nCollection < width[depth]; nCollection++)
         {
             // Create a Collection
             collection = (Element) document.createElement("collection");
