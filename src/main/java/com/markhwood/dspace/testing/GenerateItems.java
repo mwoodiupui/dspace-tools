@@ -68,6 +68,7 @@ public class GenerateItems
     public int run(String name, String[] argv)
             throws JAXBException, IOException, ParserConfigurationException
     {
+        // Load some constant text to become Item content.
         final Properties LOREM_IPSUM = new Properties();
         LOREM_IPSUM.load(GenerateItems.class.getResourceAsStream(
                 "/com/markhwood/lorem-ipsum.properties"));
@@ -99,6 +100,16 @@ public class GenerateItems
         nItems = Integer.parseInt(cmd.getOptionValue('n', "1"));
         outputDirectory = new File(cmd.getOptionValue('o', "batches"));
 
+        String mapPath = cmd.getArgs()[0];
+
+        if (debug)
+        {
+            System.err.format("Structure map will be read from %s%n", mapPath);
+            System.err.format("Each Collection will contain %d Items%n", nItems);
+            System.err.format("Batches will be built under %s%n",
+                    outputDirectory.getPath());
+        }
+
         // Read the structure
         JAXBContext context = JAXBContext.newInstance(
                 ImportStructure.class,
@@ -109,7 +120,7 @@ public class GenerateItems
         Unmarshaller unmarshaller = context.createUnmarshaller();
         unmarshaller.setEventHandler(new DefaultValidationEventHandler()); // TODO something better?
 
-        File structureFile = new File(argv[0]);
+        File structureFile = new File(mapPath);
 
         @SuppressWarnings("UnusedAssignment")
         ImportStructure importStructure = null;
@@ -117,13 +128,16 @@ public class GenerateItems
             importStructure
                     = (ImportStructure) unmarshaller.unmarshal(structureFile);
         } catch (UnmarshalException e) {
-            System.err.println(e.getMessage());
+            System.err.println("Failed to read structure map:  " + e.getMessage());
             return 1;
         }
 
         // Do something with it
         if (null != importStructure.communities)
         {
+            if (debug) System.err.format("Filling %d top-level communities%n",
+                    importStructure.communities.length);
+
             outputDirectory.mkdirs(); // Ensure that output directory exists
             documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             for (Community community : importStructure.communities)
