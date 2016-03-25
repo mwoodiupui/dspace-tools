@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Represent an {@code <import_structure>} element (the root) from the structure document.
  *
  * @author mhwood
  */

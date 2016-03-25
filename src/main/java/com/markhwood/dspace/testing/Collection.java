@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
+ * Represent a {@code <collection>} element from the structure document.
  *
  * @author mhwood
  */
