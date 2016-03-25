@@ -29,6 +29,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.w3c.dom.Document;
@@ -68,6 +69,9 @@ public class GenerateItems
     public int run(String name, String[] argv)
             throws JAXBException, IOException, ParserConfigurationException
     {
+        final String DEFAULT_ITEM_COUNT = "1";
+        final String DEFAULT_OUTPUT_DIRECTORY = "batches";
+
         // Load some constant text to become Item content.
         final Properties LOREM_IPSUM = new Properties();
         LOREM_IPSUM.load(GenerateItems.class.getResourceAsStream(
@@ -76,10 +80,24 @@ public class GenerateItems
 
         // Analyze options
         Options options = new Options();
+
         options.addOption("d", "debug", false, "Enable debug output");
+
         options.addOption("h", "help", false, "Display this help");
-        options.addOption("n", "items", true, "Create this many Items in each Collection");
-        options.addOption("o", "output", true, "Create batches in this directory");
+
+        options.addOption(Option.builder("n")
+                .longOpt("items")
+                .desc("Create this many Items in each Collection")
+                .hasArg()
+                .argName("N")
+                .build());
+
+        options.addOption(Option.builder("o")
+                .longOpt("output")
+                .desc("Create batches in this directory")
+                .hasArg()
+                .argName("FILE")
+                .build());
 
         @SuppressWarnings("UnusedAssignment")
         CommandLine cmd = null;
@@ -92,13 +110,18 @@ public class GenerateItems
 
         if (cmd.hasOption('h'))
         {
-            new HelpFormatter().printHelp(name, options);
+            new HelpFormatter().printHelp(name,
+                    "Create DSpace SAF batches from a structure map",
+                    options,
+                    "The default Collection size is " + DEFAULT_ITEM_COUNT + "\n"
+                            + "The default output directory is ./" + DEFAULT_OUTPUT_DIRECTORY,
+                    true);
             return 0;
         }
 
         debug = cmd.hasOption('d');
-        nItems = Integer.parseInt(cmd.getOptionValue('n', "1"));
-        outputDirectory = new File(cmd.getOptionValue('o', "batches"));
+        nItems = Integer.parseInt(cmd.getOptionValue('n', DEFAULT_ITEM_COUNT));
+        outputDirectory = new File(cmd.getOptionValue('o', DEFAULT_OUTPUT_DIRECTORY));
 
         String mapPath = cmd.getArgs()[0];
 
