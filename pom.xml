@@ -7,6 +7,7 @@
     <name>Personal DSpace tools</name>
     <description>Random tools for working with DSpace</description>
     <inceptionYear>2016</inceptionYear>
+    <url>https://github.com/mwoodiupui/dspace-tools</url>
 
     <groupId>com.markhwood.dspace.testing</groupId>
     <artifactId>mhwood-dspace-tools</artifactId>
@@ -22,6 +23,11 @@
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
+
+    <organization>
+        <name>Mark H. Wood</name>
+        <url>https://sites.google.com/site/mhwoodmypage/</url>
+    </organization>
 
     <developers>
         <developer>
@@ -40,6 +46,17 @@
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:https://github.com/mwoodiupui/dspace-tools.git</connection>
+        <developerConnection>scm:git@github.com:mwoodiupui/dspace-tools.git</developerConnection>
+        <url>https://github.com/mwoodiupui/dspace-tools</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/mwoodiupui/dspace-tools/issues</url>
+    </issueManagement>
+
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -56,15 +73,40 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.8</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.markhwood.launcher.Launcher</mainClass>
-                        </manifest>
-                    </archive>
+                    <acceptPomPackaging>true</acceptPomPackaging>
+                    <failOnMissingHeader>true</failOnMissingHeader>
+                    <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+                    <licenseName>mit</licenseName>
+                    <outputDirectory>${basedir}</outputDirectory>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <programs>
+                        <program>
+                            <mainClass>com.markhwood.launcher.Launcher</mainClass>
+                            <id>dspace-tools</id>
+                        </program>
+                    </programs>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <repositoryName>lib</repositoryName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <goals>
+                            <goal>assemble</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
