@@ -132,12 +132,12 @@ public class GenerateItems
 
         if (cmd.hasOption('h'))
         {
-            new HelpFormatter().printHelp(name,
+            new HelpFormatter().printHelp(name + " [OPTIONS] structure-map.xml",
                     "Create DSpace SAF batches from a structure map",
                     options,
                     "The default Collection size is " + DEFAULT_ITEM_COUNT + "\n"
                             + "The default output directory is ./" + DEFAULT_OUTPUT_DIRECTORY,
-                    true);
+                    false);
             return 0;
         }
 
@@ -145,7 +145,13 @@ public class GenerateItems
         nItems = Integer.parseInt(cmd.getOptionValue('n', DEFAULT_ITEM_COUNT));
         outputDirectory = new File(cmd.getOptionValue('o', DEFAULT_OUTPUT_DIRECTORY));
 
-        String mapPath = cmd.getArgs()[0];
+        String[] positionalArgs = cmd.getArgs();
+        if (positionalArgs.length < 1)
+        {
+            System.err.println("You must provide a structure map as written by 'dspace structure-builder'.");
+            System.exit(1);
+        }
+        String mapPath = positionalArgs[0];
 
         if (debug)
         {
