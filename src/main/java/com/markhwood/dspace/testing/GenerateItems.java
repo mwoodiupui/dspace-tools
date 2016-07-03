@@ -273,7 +273,7 @@ public class GenerateItems
             metadata.setTextContent("GenerateItems");
             root.appendChild(metadata);
 
-            aFile = new File(itemDir, "dublin-core.xml");
+            aFile = new File(itemDir, "dublin_core.xml");
             try (Writer writer = new BufferedWriter(
                     new OutputStreamWriter(
                     new FileOutputStream(aFile),
