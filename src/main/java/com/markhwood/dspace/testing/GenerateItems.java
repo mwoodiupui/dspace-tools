@@ -227,6 +227,8 @@ public class GenerateItems
     private static void doCollection(Collection collection)
     {
         String identifier = collection.identifier;
+	if (null == identifier)
+	    throw new IllegalArgumentException("Collection has no identifier.");
 
         if (debug)
             System.out.format("Collection %s%n", identifier);
