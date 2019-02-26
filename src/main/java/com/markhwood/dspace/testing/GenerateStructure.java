@@ -133,7 +133,7 @@ public class GenerateStructure
             for (String fieldName : COMMUNITY_FIELDS)
             {
                 element = document.createElement(fieldName);
-                element.setTextContent(fieldContent);
+                element.setTextContent(fieldContent + " " + fieldName);
                 community.appendChild(element);
             }
             root.appendChild(community);
@@ -164,7 +164,7 @@ public class GenerateStructure
             for (String fieldName : COMMUNITY_FIELDS)
             {
                 element = document.createElement(fieldName);
-                element.setTextContent(fieldContent);
+                element.setTextContent(fieldContent + " " + fieldName);
                 community.appendChild(element);
             }
             parent.appendChild(community);
@@ -188,7 +188,7 @@ public class GenerateStructure
             for (String fieldName : COLLECTION_FIELDS)
             {
                 element = document.createElement(fieldName);
-                element.setTextContent(fieldContent);
+                element.setTextContent(fieldContent + " " + fieldName);
                 collection.appendChild(element);
             }
             parent.appendChild(collection);
