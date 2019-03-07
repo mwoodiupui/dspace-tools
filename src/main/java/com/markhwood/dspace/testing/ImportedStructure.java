@@ -30,12 +30,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represent an {@code <import_structure>} element (the root) from the structure document.
+ * Represent an {@code <imported_structure>} element (the root) from the
+ * structure document.
  *
  * @author mhwood
  */
-@XmlRootElement(name="import_structure")
-public class ImportStructure
+@XmlRootElement(name="imported_structure")
+public class ImportedStructure
 {
     @XmlElement(name="community")
     Community[] communities;

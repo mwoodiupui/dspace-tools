@@ -120,7 +120,7 @@ public class GenerateStructure
         final int depth = 0;
 
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element root = (Element) document.createElement("import_structure");
+        Element root = (Element) document.createElement("imported_structure");
         document.appendChild((Node) root);
 
         Element community;

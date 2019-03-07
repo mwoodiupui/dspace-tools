@@ -163,7 +163,7 @@ public class GenerateItems
 
         // Read the structure
         JAXBContext context = JAXBContext.newInstance(
-                ImportStructure.class,
+                ImportedStructure.class,
                 Community.class,
                 Collection.class
         );
@@ -174,24 +174,24 @@ public class GenerateItems
         File structureFile = new File(mapPath);
 
         @SuppressWarnings("UnusedAssignment")
-        ImportStructure importStructure = null;
+        ImportedStructure importedStructure = null;
         try {
-            importStructure
-                    = (ImportStructure) unmarshaller.unmarshal(structureFile);
+            importedStructure
+                    = (ImportedStructure) unmarshaller.unmarshal(structureFile);
         } catch (UnmarshalException e) {
             System.err.println("Failed to read structure map:  " + e.getMessage());
             return 1;
         }
 
         // Do something with it
-        if (null != importStructure.communities)
+        if (null != importedStructure.communities)
         {
             if (debug) System.err.format("Filling %d top-level communities%n",
-                    importStructure.communities.length);
+                    importedStructure.communities.length);
 
             outputDirectory.mkdirs(); // Ensure that output directory exists
             documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            for (Community community : importStructure.communities)
+            for (Community community : importedStructure.communities)
             {
                 doCommunity(community);
             }
