@@ -26,7 +26,6 @@ package com.markhwood.dspace.testing;
  * #L%
  */
 
-import com.markhwood.launcher.Tool;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +47,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import com.markhwood.launcher.Tool;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -79,6 +80,8 @@ public class GenerateItems
 
     /**
      * Read the output of structure-builder and create batches to fill it.
+     * If no structure document is given, build a single batch for collection
+     * "123456789/2".
      *
      * @param name configured name of this tool.
      * @param argv command line arguments.
@@ -89,8 +92,7 @@ public class GenerateItems
      */
     @Override
     public int run(String name, String[] argv)
-            throws JAXBException, IOException, ParserConfigurationException
-    {
+            throws JAXBException, IOException, ParserConfigurationException {
         final String DEFAULT_ITEM_COUNT = "1";
         final String DEFAULT_OUTPUT_DIRECTORY = "batches";
 
@@ -130,10 +132,9 @@ public class GenerateItems
             return 1;
         }
 
-        if (cmd.hasOption('h'))
-        {
-            new HelpFormatter().printHelp(name + " [OPTIONS] structure-map.xml",
-                    "Create DSpace SAF batches from a structure map",
+        if (cmd.hasOption('h')) {
+            new HelpFormatter().printHelp(name + " [OPTIONS] [structure-map.xml]",
+                    "Create DSpace SAF batches from a structure map, or a single batch for collection '123456789/2'.",
                     options,
                     "The default Collection size is " + DEFAULT_ITEM_COUNT + "\n"
                             + "The default output directory is ./" + DEFAULT_OUTPUT_DIRECTORY,
@@ -145,60 +146,68 @@ public class GenerateItems
         nItems = Integer.parseInt(cmd.getOptionValue('n', DEFAULT_ITEM_COUNT));
         outputDirectory = new File(cmd.getOptionValue('o', DEFAULT_OUTPUT_DIRECTORY));
 
+        ImportedStructure importedStructure;
+
         String[] positionalArgs = cmd.getArgs();
-        if (positionalArgs.length < 1)
-        {
+        if (positionalArgs.length < 1) { // no structure document
+            Collection collection = new Collection();
+            collection.identifier = "123456789/2";
+            Community community = new Community();
+            community.subCommunities = new Community[0];
+            community.collections = new Collection[]{ collection };
+            importedStructure = new ImportedStructure();
+            importedStructure.communities = new Community[]{ community };
+
+            /*
             System.err.println("You must provide a structure map as written by 'dspace structure-builder'.");
             System.exit(1);
-        }
-        String mapPath = positionalArgs[0];
+            */
+        } else {
+            String mapPath = positionalArgs[0];
 
-        if (debug)
-        {
-            System.err.format("Structure map will be read from %s%n", mapPath);
+            if (debug) {
+                System.err.format("Structure map will be read from %s%n", mapPath);
+            }
+
+            // Read the structure
+            JAXBContext context = JAXBContext.newInstance(
+                    ImportedStructure.class,
+                    Community.class,
+                    Collection.class
+            );
+
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            unmarshaller.setEventHandler(new DefaultValidationEventHandler()); // TODO something better?
+
+            File structureFile = new File(mapPath);
+
+            try {
+                importedStructure
+                        = (ImportedStructure) unmarshaller.unmarshal(structureFile);
+            } catch (UnmarshalException e) {
+                System.err.println("Failed to read structure map:  " + e.getMessage());
+                return 1;
+            }
+        }
+
+        if (debug) {
             System.err.format("Each Collection will contain %d Items%n", nItems);
             System.err.format("Batches will be built under %s%n",
                     outputDirectory.getPath());
         }
 
-        // Read the structure
-        JAXBContext context = JAXBContext.newInstance(
-                ImportedStructure.class,
-                Community.class,
-                Collection.class
-        );
-
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        unmarshaller.setEventHandler(new DefaultValidationEventHandler()); // TODO something better?
-
-        File structureFile = new File(mapPath);
-
-        @SuppressWarnings("UnusedAssignment")
-        ImportedStructure importedStructure = null;
-        try {
-            importedStructure
-                    = (ImportedStructure) unmarshaller.unmarshal(structureFile);
-        } catch (UnmarshalException e) {
-            System.err.println("Failed to read structure map:  " + e.getMessage());
-            return 1;
-        }
-
         // Do something with it
-        if (null != importedStructure.communities)
-        {
+        if (null != importedStructure.communities) {
             if (debug) System.err.format("Filling %d top-level communities%n",
                     importedStructure.communities.length);
 
             outputDirectory.mkdirs(); // Ensure that output directory exists
             documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            for (Community community : importedStructure.communities)
-            {
+            for (Community community : importedStructure.communities) {
                 doCommunity(community);
             }
             return 0;
-        }
-        else
-        {
+        } else {
             System.err.println("The structure document defines no communities -- nothing to do.");
             return 1;
         }
@@ -227,8 +236,8 @@ public class GenerateItems
     private static void doCollection(Collection collection)
     {
         String identifier = collection.identifier;
-	if (null == identifier)
-	    throw new IllegalArgumentException("Collection has no identifier.");
+        if (null == identifier)
+            throw new IllegalArgumentException("Collection has no identifier.");
 
         if (debug)
             System.out.format("Collection %s%n", identifier);
